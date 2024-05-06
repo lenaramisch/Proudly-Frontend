@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
+nav {
+    background-color: #829CBC;
+}
+
+.body {
+    background-color: #afc8e6;
+}
+
+html {background-color: #afc8e6;}
+
+.hover:hover {
+    color: #376996;
+}
+
+#greeting {
+    color: #1D3461;
+    font-weight: 500;
+}
+
+.jersey-10-regular {
+    font-family: "Jersey 10", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    color: #1D3461
+}
