@@ -7,7 +7,8 @@
       </p>
       <div class="login">
         <div class="mb-5">
-          <input id="base-input" class="input" placeholder="Username" type="text">
+          <input id="base-input" class="mb-4 input" placeholder="Username" type="text">
+          <input id="base-input" class="input" placeholder="Password" type="text">
         </div>
         <div class="midPlacement">
           <NuxtLink to="/">
@@ -87,6 +88,7 @@ html {
     padding: 1em;
     filter: grayscale(100%);
     opacity: 0.5;
+    margin-bottom: 0.2em;
 }
 
 .input {

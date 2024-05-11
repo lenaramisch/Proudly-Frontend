@@ -21,7 +21,7 @@
           <button>Back</button>
         </router-link>
         <router-link :to="{ path: '/' }">
-          <button @click="addUser(username)">
+          <button>
             Register
           </button>
         </router-link>
@@ -79,6 +79,7 @@ html {
     padding: 1em;
     filter: grayscale(100%);
     opacity: 0.5;
+    margin-bottom: 0.2em;
 }
 
 .padding {
