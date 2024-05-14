@@ -7,13 +7,11 @@
       </p>
       <div class="login">
         <div class="mb-5">
-          <input id="base-input" class="mb-4 input" placeholder="Username" type="text">
-          <input id="base-input" class="input" placeholder="Password" type="text">
+          <input v-model="username" id="username-input" class="mb-4 input" placeholder="Username" type="text">
+          <input v-model="password" id="password-input" class="input" placeholder="Password" type="password">
         </div>
         <div class="midPlacement">
-          <NuxtLink to="/">
-            <button class="button">Login</button>
-          </NuxtLink>
+          <button class="button" @click="loginUser">Login</button>
           <NuxtLink to="/register">
             <button class="button">New User</button>
           </NuxtLink>
@@ -22,21 +20,47 @@
     </div>
   </div>
   <fwb-footer sticky class="background-image" />
+  <button @click="alerty()">Test</button>
 </template>
 
 <script setup lang="ts">
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Vue, { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { initFlowbite } from 'flowbite'
 import { FwbFooter } from 'flowbite-vue'
+import axios from 'axios'
 
 // initialize components based on data attribute selectors
 onMounted(() => {
+  console.log("initialized flowbite")
   initFlowbite()
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const name = 'LoginPage'
 })
+
+const username = ref('');
+const password = ref('');
+
+
+function alerty() {
+  alert("Hi!")
+}
+
+
+async function loginUser() {
+  console.log("Got into loginUser function!");
+  try {
+    const userToken = axios.post("http://localhost:3030/login", {
+      username: username.value,
+      password: password.value
+    });
+    //console.log("Got user Token after login!" + userToken.data);
+  } catch (error) {
+    console.error('Error logging in:', error);
+  }
+};
+
 </script>
 
 <style>

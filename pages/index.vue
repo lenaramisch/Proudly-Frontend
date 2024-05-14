@@ -68,7 +68,7 @@
 
 <script setup lang="ts">
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Vue, { onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { initFlowbite } from 'flowbite'
 import {
   FwbHeading,

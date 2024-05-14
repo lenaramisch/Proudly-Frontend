@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import Vue, { onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { initFlowbite } from 'flowbite'
 import { FwbFooter } from 'flowbite-vue'
 
