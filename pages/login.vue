@@ -20,7 +20,6 @@
     </div>
   </div>
   <fwb-footer sticky class="background-image" />
-  <button @click="alerty()">Test</button>
 </template>
 
 <script setup lang="ts">
@@ -43,19 +42,35 @@ const username = ref('');
 const password = ref('');
 
 
-function alerty() {
-  alert("Hi!")
-}
+/*
+TODO:
+- Store user token somehow -> store?/variable?
+- Put user token into header for each axios function!:
 
+    axios.post("https://localhost:3030/...", 
+      {
+        DATA TO SENT
+      },
+      {
+        headers: {
+            Authorization: 'Bearer ' + varToken
+          }
+      })
+
+- Add other axios functions
+*/
 
 async function loginUser() {
-  console.log("Got into loginUser function!");
   try {
-    const userToken = axios.post("http://localhost:3030/login", {
+    const response = await axios.post("http://localhost:3030/login", {
       username: username.value,
       password: password.value
     });
-    //console.log("Got user Token after login!" + userToken.data);
+    if (response.data) {
+            console.log("Got user Token after login! " + JSON.stringify(response.data.data.token));
+        } else {
+            console.error('Login failed:', response.data.message);
+        }
   } catch (error) {
     console.error('Error logging in:', error);
   }

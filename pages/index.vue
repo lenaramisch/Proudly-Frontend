@@ -72,12 +72,9 @@ import { onMounted } from 'vue'
 import { initFlowbite } from 'flowbite'
 import {
   FwbHeading,
-  FwbA,
   FwbTable,
   FwbTableBody,
   FwbTableCell,
-  FwbTableHead,
-  FwbTableHeadCell,
   FwbTableRow,
   FwbButton
 } from 'flowbite-vue'
