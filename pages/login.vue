@@ -47,8 +47,6 @@ const router = useRouter();
 
 
 /*
-TODO:
-- Store user token somehow -> store?/variable?
 - Put user token into header for each axios function!:
 
     axios.post("https://localhost:3030/...", 
@@ -70,12 +68,13 @@ async function loginUser() {
       username: username.value,
       password: password.value
     });
-    if (response.data) {
+    if (response.data.data && response.data.data.token) {
       store.token = response.data.data.token;
       store.username = username.value;
       await router.push('/');
-        } else {
-            console.error('Login failed:', response.data.message);
+      } else {
+            alert("Incorrect password or username, please try again");
+            password.value = ''
         }
   } catch (error) {
     console.error('Error logging in:', error);

@@ -6,11 +6,15 @@
       </h1>
       <div>
         <!-- Input fields -->
-        <input
+        <input class="input"
           v-model="username"
           placeholder="Username"
         >
-        <input
+        <input type="password" class="input"
+          v-model="password"
+          placeholder="Password"
+        >
+        <input class="input"
           v-model="petname"
           placeholder="Pet Name"
         >
@@ -20,11 +24,9 @@
         <router-link :to="{ path: '/login' }">
           <button>Back</button>
         </router-link>
-        <router-link :to="{ path: '/' }">
-          <button>
+          <button @click="register">
             Register
           </button>
-        </router-link>
       </div>
     </div>
   </div>
@@ -36,9 +38,14 @@
 import { onMounted, ref } from 'vue'
 import { initFlowbite } from 'flowbite'
 import { FwbFooter } from 'flowbite-vue'
+import axios from 'axios';
+import { useRouter } from 'vue-router'
 
 const username = ref('')
 const petname = ref('')
+const password = ref('')
+const router = useRouter();
+
 
 // initialize components based on data attribute selectors
 onMounted(() => {
@@ -47,6 +54,25 @@ onMounted(() => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const name = 'RegisterPage'
 })
+
+async function register() {
+  try {
+    const response = await axios.post("http://localhost:3030/register", {
+      username: username.value,
+      password: password.value,
+      petname: petname.value
+    });
+    if (response.status === 201) {
+      alert("Account created! You can log in now")
+      await router.push('/login');
+      } else {
+            alert("Something went wrong. Please try again!");
+        }
+  } catch (error) {
+    console.error('Error logging in:', error);
+  }
+};
+
 </script>
 
 <style>
@@ -86,7 +112,7 @@ html {
     padding: 12em;
 }
 
-input {
+.input {
 
     position: relative;
     cursor: text;
@@ -104,7 +130,7 @@ input {
     width: 100%;
     margin-bottom: 1em;
 }
-input:focus {
+.input:focus {
     border-color: lightblue;
     box-shadow: 0 1px 0 0 rgb(76, 76, 166);
 }
