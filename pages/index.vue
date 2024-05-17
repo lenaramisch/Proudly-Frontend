@@ -7,7 +7,7 @@
           <span class="self-center text-4xl font-semibold whitespace-nowrap jersey-10-regular">Proudly</span>
         </a>
         <h1 id="greeting" tag="h1" class="jersey-10-regular text-3xl">
-          Welcome, QueenOfJoy!
+          Welcome, {{ store.username }}!
         </h1>
         <button data-collapse-toggle="navbar-default" type="button" class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-default" aria-expanded="false">
           <span class="sr-only">Open main menu</span>
@@ -78,7 +78,7 @@ import {
   FwbTableRow,
   FwbButton
 } from 'flowbite-vue'
-
+import { useUserStore } from '~/stores/userdata'
 
 // initialize components based on data attribute selectors
 onMounted(() => {
@@ -87,6 +87,9 @@ onMounted(() => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const name = 'IndexPage'
 })
+
+const store = useUserStore();
+
 </script>
 
 <style>

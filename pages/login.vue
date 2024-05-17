@@ -28,6 +28,8 @@ import { onMounted, ref } from 'vue'
 import { initFlowbite } from 'flowbite'
 import { FwbFooter } from 'flowbite-vue'
 import axios from 'axios'
+import { useUserStore } from '~/stores/userdata'
+import { useRouter } from 'vue-router'
 
 // initialize components based on data attribute selectors
 onMounted(() => {
@@ -40,6 +42,8 @@ onMounted(() => {
 
 const username = ref('');
 const password = ref('');
+const store = useUserStore();
+const router = useRouter();
 
 
 /*
@@ -67,7 +71,9 @@ async function loginUser() {
       password: password.value
     });
     if (response.data) {
-            console.log("Got user Token after login! " + JSON.stringify(response.data.data.token));
+      store.token = response.data.data.token;
+      store.username = username.value;
+      await router.push('/');
         } else {
             console.error('Login failed:', response.data.message);
         }
