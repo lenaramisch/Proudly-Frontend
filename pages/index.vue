@@ -55,12 +55,12 @@
       </fwb-table>
       <fwb-button id="addTodoButton" color="default" outline>Add new todo</fwb-button>
     </div>
-    <fwb-heading id="petName" tag="h2">YourPetName</fwb-heading>
-    <img id="petImage" src="../assets/images/pet_placeholder.gif" alt="pet placehholder"/>
+    <fwb-heading id="petName" tag="h2"> {{ store.petname }}</fwb-heading>
+    <img id="petImage" src="../assets/images/pet_placeholder.gif" alt="pet placeholder"/>
     
     <div class="happinessBar">
       <div class="max-w-2xl bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 m-16">
-        <div class="bg-blue-600 h-2.5 rounded-full" style="width: 20%"></div>
+        <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: petsHappiness + '%' }"></div>
       </div>
     </div>
   </div>
@@ -79,6 +79,7 @@ import {
   FwbButton
 } from 'flowbite-vue'
 import { useUserStore } from '~/stores/userdata'
+import axios from 'axios';
 
 // initialize components based on data attribute selectors
 onMounted(() => {
@@ -88,7 +89,39 @@ onMounted(() => {
   const name = 'IndexPage'
 })
 
+onBeforeMount(() => {
+  getUserData()
+})
+
 const store = useUserStore();
+const token = store.token;
+const petsHappiness = store.petsHappiness;
+
+async function getUserData() {
+  try {
+    const response = await axios.post("http://localhost:3030/verify", {
+      token: token
+    });
+    if (response.data.userid && response.data.petid) {
+      store.userid = response.data.userid;
+      store.petid = response.data.petid;
+      const userId = store.userid;
+      const petRequest = await axios.get(`http://localhost:3030/pets/user/${userId}`);
+      if (petRequest.data.name) {
+        console.log(petRequest.data)
+        store.petname = petRequest.data.name;
+        store.petsHappiness = petRequest.data.current_happiness;
+        store.petsXP = petRequest.data.xp;
+      } else {
+        console.log("Failed to get pet")
+      }
+      } else {
+            alert("Token is not valid");
+        }
+  } catch (error) {
+    console.error('Error verifying token:', error);
+  }
+};
 
 </script>
 
