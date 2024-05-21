@@ -8,6 +8,13 @@ export const useUserStore = defineStore('token', {
     userid: 0,
     petname: '',
     petsHappiness: 0,
-    petsXP: 0
+    petsXP: 0,
+    todos: [{
+        "id": 0,
+        "userid": 0,
+        "title": "",
+        "size": ""
+    }
+    ]
     })
 })

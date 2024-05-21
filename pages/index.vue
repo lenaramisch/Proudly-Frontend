@@ -18,42 +18,33 @@
         <div id="navbar-default" class="hidden w-full md:block md:w-auto">
           <ul class="font-semibold flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0 md:border-0">
             <li>
-              <a href="/login" class="jersey-10-regular text-2xl hover block py-2 px-3 rounded md:bg-transparent" aria-current="page">Logout</a>
+              <a href="/login" class="jersey-10-regular text-2xl hover block py-2 px-3 rounded md:bg-transparent" aria-current="page" @click="logoutUser()">Logout</a>
             </li>
           </ul>
         </div>
       </div>
     </nav>
     <div>
-      <fwb-table striped class="todoList">
-        <fwb-table-body>
-          <fwb-table-row>
-            <fwb-table-cell>Cuddle the cat</fwb-table-cell>
-            <fwb-table-cell>
-              <fwb-button class="p-2 m-1" color="yellow" outline><img src="../assets/icons/pen.svg" class="h-4"></fwb-button>
-              <fwb-button class="p-2 m-1" color="red" outline><img src="../assets/icons/bin.svg" class="h-4"></fwb-button>
-              <fwb-button class="p-2 m-1" color="green" outline><img src="../assets/icons/check.svg" class="h-4"></fwb-button>
-            </fwb-table-cell>
-          </fwb-table-row>
-          <fwb-table-row>
-            <fwb-table-cell>Implement new feature</fwb-table-cell>
-            <fwb-table-cell>
-              <fwb-button class="p-2 m-1" color="yellow" outline><img src="../assets/icons/pen.svg" class="h-4"></fwb-button>
-              <fwb-button class="p-2 m-1" color="red" outline><img src="../assets/icons/bin.svg" class="h-4"></fwb-button>
-              <fwb-button class="p-2 m-1" color="green" outline><img src="../assets/icons/check.svg" class="h-4"></fwb-button>
-            </fwb-table-cell>
-          </fwb-table-row>
-          <fwb-table-row>
-            <fwb-table-cell>Drink some coffee</fwb-table-cell>
-            <fwb-table-cell>
-              <fwb-button class="p-2 m-1" color="yellow" outline><img src="../assets/icons/pen.svg" class="h-4"></fwb-button>
-              <fwb-button class="p-2 m-1" color="red" outline><img src="../assets/icons/bin.svg" class="h-4"></fwb-button>
-              <fwb-button class="p-2 m-1" color="green" outline><img src="../assets/icons/check.svg" class="h-4"></fwb-button>
-            </fwb-table-cell>
-          </fwb-table-row>
-        </fwb-table-body>
-      </fwb-table>
-      <fwb-button id="addTodoButton" color="default" outline>Add new todo</fwb-button>
+      <div>
+        <fwb-button id="addTodoButton" color="default" outline @click="isRendered = true">Add new todo</fwb-button>
+      </div>
+      <div v-if="isRendered" id="addTodoForm">
+        <fwb-input
+            v-model="todoTitle"
+            placeholder="What is on your mind?"
+            label="Todo Title"
+        />
+        <fwb-select
+            v-model="selectedSize"
+            :options="todoSize"
+            label="Todo Size"
+        />
+        <button @click="newTodoHandler; isRendered = false">Create</button>
+      </div>
+      <DataTable :value=store.todos stripedRows tableStyle="min-width: 50rem">
+        <Column field="title" header="Code" sortable style="width: 25%"></Column>
+        <Column field="buttons" header="" sortable style="width: 25%"></Column>
+      </DataTable>
     </div>
     <fwb-heading id="petName" tag="h2"> {{ store.petname }}</fwb-heading>
     <img id="petImage" src="../assets/images/pet_placeholder.gif" alt="pet placeholder"/>
@@ -68,15 +59,13 @@
 
 <script setup lang="ts">
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { initFlowbite } from 'flowbite'
 import {
   FwbHeading,
-  FwbTable,
-  FwbTableBody,
-  FwbTableCell,
-  FwbTableRow,
-  FwbButton
+  FwbButton,
+  FwbSelect,
+  FwbInput
 } from 'flowbite-vue'
 import { useUserStore } from '~/stores/userdata'
 import axios from 'axios';
@@ -93,9 +82,65 @@ onBeforeMount(() => {
   getUserData()
 })
 
+let isRendered: Boolean = false;
+
 const store = useUserStore();
 const token = store.token;
 const petsHappiness = store.petsHappiness;
+
+const todoTitle = ref('');
+const selectedSize = ref('');
+const todoSize = [
+    { value: 'small', name: 'Small (15 Min)' },
+    { value: 'medium', name: 'Medium (30 Min)' },
+    { value: 'big', name: 'Large (1h +)' },
+];
+
+function newTodoHandler() {
+  console.log("todo title " + JSON.stringify(todoTitle) + " todo size " + JSON.stringify(selectedSize))
+  //Send data to backend
+  addTodo();
+  //reload todo list
+  getActiveTodos();
+}
+
+function logoutUser() {
+  store.$reset
+}
+
+async function addTodo() {
+  try {
+    const userId = store.userid;
+    await axios.post(`http://localhost:3030/todos/user/${userId}`,
+      {
+        title: todoTitle.value,
+        size: selectedSize.value
+      });
+  } catch (error) {
+    console.error('Error adding todo:', error);
+  }
+}
+
+async function getActiveTodos() {
+  try {
+    const userId = store.userid;
+    const response = await axios.get(`http://localhost:3030/todos/user/active/${userId}`);
+    const activeTodos = response.data;
+
+    if (Array.isArray(activeTodos)) {
+      store.todos = activeTodos.map(todo => ({
+        id: todo.id,
+        userid: todo.user_id,
+        title: todo.title,
+        size: todo.size
+      }));
+    } else {
+      console.log("No active todos found.");
+    }
+  } catch (error) {
+    console.log("Error getting active todos: ", error)
+  }
+}
 
 async function getUserData() {
   try {
@@ -108,10 +153,10 @@ async function getUserData() {
       const userId = store.userid;
       const petRequest = await axios.get(`http://localhost:3030/pets/user/${userId}`);
       if (petRequest.data.name) {
-        console.log(petRequest.data)
         store.petname = petRequest.data.name;
         store.petsHappiness = petRequest.data.current_happiness;
         store.petsXP = petRequest.data.xp;
+        getActiveTodos();
       } else {
         console.log("Failed to get pet")
       }
@@ -122,7 +167,6 @@ async function getUserData() {
     console.error('Error verifying token:', error);
   }
 };
-
 </script>
 
 <style>
