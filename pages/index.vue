@@ -26,20 +26,23 @@
     </nav>
     <div>
       <div>
-        <fwb-button id="addTodoButton" color="default" outline @click="isRendered = true">Add new todo</fwb-button>
+        <fwb-button id="addTodoButton" color="default" outline @click="openModal">Add new todo</fwb-button>
       </div>
-      <div v-if="isRendered" id="addTodoForm">
-        <fwb-input
-            v-model="todoTitle"
-            placeholder="What is on your mind?"
-            label="Todo Title"
-        />
-        <fwb-select
-            v-model="selectedSize"
-            :options="todoSize"
-            label="Todo Size"
-        />
-        <button @click="newTodoHandler; isRendered = false">Create</button>
+      <PopupForm :isOpen="isModalOpened" @modal-close="closeModal" @submit="submitHandler" name="first-modal">
+        <template #header>Create new Todo</template>
+        <template #content>
+          <fwb-input
+                v-model="todoTitle"
+                placeholder="What is on your mind?"
+                label="Todo Title"
+            />
+            <fwb-select
+                v-model="selectedSize"
+                :options="todoSize"
+                label="Todo Size"
+            />
+          </template>
+      </PopupForm>
       </div>
       <DataTable :value=store.todos stripedRows tableStyle="min-width: 50rem">
         <Column field="title" header="Code" sortable style="width: 25%"></Column>
@@ -54,7 +57,6 @@
         <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: petsHappiness + '%' }"></div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup lang="ts">
@@ -68,6 +70,7 @@ import {
   FwbInput
 } from 'flowbite-vue'
 import { useUserStore } from '~/stores/userdata'
+import PopupForm from "../components/PopupForm.vue"
 import axios from 'axios';
 
 // initialize components based on data attribute selectors
@@ -82,7 +85,19 @@ onBeforeMount(() => {
   getUserData()
 })
 
-let isRendered: Boolean = false;
+const isModalOpened = ref(false);
+
+const openModal = () => {
+  isModalOpened.value = true;
+};
+const closeModal = () => {
+  isModalOpened.value = false;
+};
+
+const submitHandler = ()=>{
+  store.newTodoSize = selectedSize.value
+  store.newTodoTitle = todoTitle.value
+}
 
 const store = useUserStore();
 const token = store.token;
@@ -96,50 +111,29 @@ const todoSize = [
     { value: 'big', name: 'Large (1h +)' },
 ];
 
-function newTodoHandler() {
-  console.log("todo title " + JSON.stringify(todoTitle) + " todo size " + JSON.stringify(selectedSize))
-  //Send data to backend
-  addTodo();
-  //reload todo list
-  getActiveTodos();
+async function getActiveTodos() {
+    try {
+        const userId = store.userid;
+        const response = await axios.get(`http://localhost:3030/todos/user/active/${userId}`);
+        const activeTodos = response.data;
+    
+        if (Array.isArray(activeTodos)) {
+            store.todos = activeTodos.map(todo => ({
+            id: todo.id,
+            userid: todo.user_id,
+            title: todo.title,
+            size: todo.size
+            }));
+        } else {
+            console.log("No active todos found.");
+        }
+    } catch (error) {
+    console.log("Error getting active todos: ", error)
+    }
 }
 
 function logoutUser() {
   store.$reset
-}
-
-async function addTodo() {
-  try {
-    const userId = store.userid;
-    await axios.post(`http://localhost:3030/todos/user/${userId}`,
-      {
-        title: todoTitle.value,
-        size: selectedSize.value
-      });
-  } catch (error) {
-    console.error('Error adding todo:', error);
-  }
-}
-
-async function getActiveTodos() {
-  try {
-    const userId = store.userid;
-    const response = await axios.get(`http://localhost:3030/todos/user/active/${userId}`);
-    const activeTodos = response.data;
-
-    if (Array.isArray(activeTodos)) {
-      store.todos = activeTodos.map(todo => ({
-        id: todo.id,
-        userid: todo.user_id,
-        title: todo.title,
-        size: todo.size
-      }));
-    } else {
-      console.log("No active todos found.");
-    }
-  } catch (error) {
-    console.log("Error getting active todos: ", error)
-  }
 }
 
 async function getUserData() {
