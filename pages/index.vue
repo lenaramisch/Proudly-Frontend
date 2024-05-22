@@ -25,10 +25,7 @@
       </div>
     </nav>
     <div>
-      <div>
-        <fwb-button id="addTodoButton" color="default" outline @click="openModal">Add new todo</fwb-button>
-      </div>
-      <PopupForm :isOpen="isModalOpened" @modal-close="closeModal" @submit="submitHandler" name="first-modal">
+      <PopupForm :isOpen="isModalOpened" @submit="submitHandler" name="first-modal">
         <template #header>Create new Todo</template>
         <template #content>
           <fwb-input
@@ -44,10 +41,19 @@
           </template>
       </PopupForm>
       </div>
-      <DataTable :value=store.todos stripedRows tableStyle="min-width: 50rem">
-        <Column field="title" header="Code" sortable style="width: 25%"></Column>
-        <Column field="buttons" header="" sortable style="width: 25%"></Column>
+      <DataTable class="todoList" :value=store.todos stripedRows :tableStyle="{'max-width': '25rem'}">
+        <Column field="title" header="Todo" style="width: 25%"></Column>
+        <Column field="buttons" header="" style="width: 25%">
+          <template #body="">
+              <fwb-button class="p-2 m-1" color="yellow" outline><img src="../assets/icons/pen.svg" class="h-4"></fwb-button>
+              <fwb-button class="p-2 m-1" color="red" outline><img src="../assets/icons/bin.svg" class="h-4"></fwb-button>
+              <fwb-button class="p-2 m-1" color="green" outline><img src="../assets/icons/check.svg" class="h-4"></fwb-button>
+          </template>
+        </Column>
       </DataTable>
+    </div>
+    <div>
+      <fwb-button id="addTodoButton" color="default" outline @click="openModal">Add new todo</fwb-button>
     </div>
     <fwb-heading id="petName" tag="h2"> {{ store.petname }}</fwb-heading>
     <img id="petImage" src="../assets/images/pet_placeholder.gif" alt="pet placeholder"/>
@@ -90,13 +96,13 @@ const isModalOpened = ref(false);
 const openModal = () => {
   isModalOpened.value = true;
 };
-const closeModal = () => {
-  isModalOpened.value = false;
-};
 
 const submitHandler = ()=>{
   store.newTodoSize = selectedSize.value
   store.newTodoTitle = todoTitle.value
+  todoTitle.value  = "";
+  selectedSize.value = ""
+  isModalOpened.value = false;
 }
 
 const store = useUserStore();
@@ -205,15 +211,10 @@ html {background-color: #afc8e6;}
   top: 17%;
 }
 
-.todoList > * {
-  height: 80px;
-  
-}
-
 #addTodoButton {
   position:fixed;
   left:65%;
-  top: 50%;
+  top: 75%;
 }
 
 #petImage {
@@ -229,4 +230,5 @@ html {background-color: #afc8e6;}
   left: 25%;
   top: 82%;
 }
+
 </style>

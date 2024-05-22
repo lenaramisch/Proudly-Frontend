@@ -51,12 +51,12 @@ async function getActiveTodos() {
     }
 }
 
-function newTodoHandler() {
+async function newTodoHandler() {
     emit('submit');
     //Send data to backend
-    addTodo();
+    await addTodo();
     //reload todo list
-    getActiveTodos();
+    await getActiveTodos();
 }
 </script>
 
