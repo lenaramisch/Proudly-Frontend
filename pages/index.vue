@@ -41,13 +41,13 @@
           </template>
       </PopupForm>
       </div>
-      <DataTable class="todoList" :value=store.todos stripedRows :tableStyle="{'max-width': '25rem'}">
+      <DataTable class="todoList" :value=store.todos stripedRows :data-key="id" :tableStyle="{'max-width': '25rem'}">
         <Column field="title" header="Todo" style="width: 25%"></Column>
-        <Column field="buttons" header="" style="width: 25%">
-          <template #body="">
-              <fwb-button class="p-2 m-1" color="yellow" outline><img src="../assets/icons/pen.svg" class="h-4"></fwb-button>
-              <fwb-button class="p-2 m-1" color="red" outline><img src="../assets/icons/bin.svg" class="h-4"></fwb-button>
-              <fwb-button class="p-2 m-1" color="green" outline><img src="../assets/icons/check.svg" class="h-4"></fwb-button>
+        <Column field="id" header="" style="width: 25%">
+          <template #body="slotProps">
+              <fwb-button @click="editTodo(slotProps.data)" class="p-2 m-1" color="yellow" outline><img src="../assets/icons/pen.svg" class="h-4"></fwb-button>
+              <fwb-button @click="deleteTodo(slotProps.data)" class="p-2 m-1" color="red" outline><img src="../assets/icons/bin.svg" class="h-4"></fwb-button>
+              <fwb-button @click="completeTodo(slotProps.data)" class="p-2 m-1" color="green" outline><img src="../assets/icons/check.svg" class="h-4"></fwb-button>
           </template>
         </Column>
       </DataTable>
@@ -60,7 +60,7 @@
     
     <div class="happinessBar">
       <div class="max-w-2xl bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 m-16">
-        <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: petsHappiness + '%' }"></div>
+        <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: store.petsHappiness + '%' }"></div>
       </div>
     </div>
 </template>
@@ -92,6 +92,7 @@ onBeforeMount(() => {
 })
 
 const isModalOpened = ref(false);
+let id: number;
 
 const openModal = () => {
   isModalOpened.value = true;
@@ -107,7 +108,6 @@ const submitHandler = ()=>{
 
 const store = useUserStore();
 const token = store.token;
-const petsHappiness = store.petsHappiness;
 
 const todoTitle = ref('');
 const selectedSize = ref('');
@@ -116,6 +116,47 @@ const todoSize = [
     { value: 'medium', name: 'Medium (30 Min)' },
     { value: 'big', name: 'Large (1h +)' },
 ];
+
+async function editTodo(slotProps: any){
+  try {
+    const todoId = slotProps.id;
+    const response = await axios.put(`http://localhost:3030/todos/${todoId}`, {
+      //title
+      //size
+    });
+  } catch (error: any) {
+    console.log("Error editing todo: ", error)
+  }
+}
+
+async function deleteTodo(slotProps: any){
+  try {
+    const todoId = slotProps.id;
+    console.log("Sending to backend: todoId = " + todoId)
+    await axios.delete(`http://localhost:3030/todos/${todoId}`);
+    getActiveTodos()
+  } catch (error: any) {
+    console.log("Error deleting todo: ", error)
+  }
+}
+
+async function completeTodo(slotProps: any){
+  try {
+    const todoId = slotProps.id;
+    const petId = store.petid;
+    await axios.put(`http://localhost:3030/todos/complete/${todoId}`);
+    const petResult = await axios.get(`http://localhost:3030/pets/${petId}`);
+    if (petResult.data.current_happiness) {
+      store.petsHappiness = petResult.data.current_happiness
+      store.petsXP = petResult.data.xp
+      getActiveTodos()
+    } else {
+      console.log("Getting pets updated happiness and xp failed")
+    }
+  } catch (error: any) {
+    console.log("Error completing todo: ", error)
+  }
+}
 
 async function getActiveTodos() {
     try {
@@ -134,7 +175,7 @@ async function getActiveTodos() {
             console.log("No active todos found.");
         }
     } catch (error) {
-    console.log("Error getting active todos: ", error)
+      console.log("Error getting active todos: ", error)
     }
 }
 
