@@ -25,7 +25,7 @@
       </div>
     </nav>
     <div>
-      <PopupForm :isOpen="isModalOpened" @submit="submitHandler" name="first-modal">
+      <NewTodoPopupForm :isOpen="isModalOpened" @submit="submitHandler" name="first-modal">
         <template #header>Create new Todo</template>
         <template #content>
           <fwb-input
@@ -39,13 +39,13 @@
                 label="Todo Size"
             />
           </template>
-      </PopupForm>
+      </NewTodoPopupForm>
       </div>
-      <DataTable class="todoList" :value=store.todos stripedRows :data-key="id" :tableStyle="{'max-width': '25rem'}">
-        <Column field="title" header="Todo" style="width: 25%"></Column>
+      <DataTable class="todoList" :value=store.todos stripedRows :tableStyle="{'max-width': '25rem'}">
+        <Column field="title" header="Todos" style="width: 25%"></Column>
         <Column field="id" header="" style="width: 25%">
           <template #body="slotProps">
-              <fwb-button @click="editTodo(slotProps.data)" class="p-2 m-1" color="yellow" outline><img src="../assets/icons/pen.svg" class="h-4"></fwb-button>
+              <fwb-button @click="openModal2(slotProps.data)" class="p-2 m-1" color="yellow" outline><img src="../assets/icons/pen.svg" class="h-4"></fwb-button>
               <fwb-button @click="deleteTodo(slotProps.data)" class="p-2 m-1" color="red" outline><img src="../assets/icons/bin.svg" class="h-4"></fwb-button>
               <fwb-button @click="completeTodo(slotProps.data)" class="p-2 m-1" color="green" outline><img src="../assets/icons/check.svg" class="h-4"></fwb-button>
           </template>
@@ -55,6 +55,21 @@
     <div>
       <fwb-button id="addTodoButton" color="default" outline @click="openModal">Add new todo</fwb-button>
     </div>
+    <EditTodoPopupForm :isOpen="isModalOpened2" @submit="submitHandler2" name="second-modal">
+        <template #header>Edit Todo</template>
+        <template #content>
+          <fwb-input
+                v-model="editTodoTitle"
+                placeholder="What is on your mind?"
+                label="Todo Title"
+            />
+            <fwb-select
+                v-model="editSelectedSize"
+                :options="todoSize"
+                label="Todo Size"
+            />
+          </template>
+      </EditTodoPopupForm>
     <fwb-heading id="petName" tag="h2"> {{ store.petname }}</fwb-heading>
     <img id="petImage" src="../assets/images/pet_placeholder.gif" alt="pet placeholder"/>
     
@@ -76,8 +91,9 @@ import {
   FwbInput
 } from 'flowbite-vue'
 import { useUserStore } from '~/stores/userdata'
-import PopupForm from "../components/PopupForm.vue"
 import axios from 'axios';
+import EditTodoPopupForm from '~/components/EditTodoPopupForm.vue'
+import NewTodoPopupForm from '../components/NewTodoPopupForm.vue'
 
 // initialize components based on data attribute selectors
 onMounted(() => {
@@ -92,11 +108,17 @@ onBeforeMount(() => {
 })
 
 const isModalOpened = ref(false);
-let id: number;
+const isModalOpened2 = ref(false);
 
 const openModal = () => {
   isModalOpened.value = true;
 };
+
+const openModal2 = (slotProps: any) => {
+  const todoId = slotProps.id;
+  store.editTodoId = todoId;
+  isModalOpened2.value = true;
+}
 
 const submitHandler = ()=>{
   store.newTodoSize = selectedSize.value
@@ -106,28 +128,26 @@ const submitHandler = ()=>{
   isModalOpened.value = false;
 }
 
+const submitHandler2 = ()=> {
+  store.editTodoSize = editSelectedSize.value
+  store.editTodoTitle = editTodoTitle.value
+  editTodoTitle.value  = "";
+  editSelectedSize.value = ""
+  isModalOpened2.value = false;
+}
+
 const store = useUserStore();
 const token = store.token;
 
 const todoTitle = ref('');
 const selectedSize = ref('');
+const editTodoTitle = ref('');
+const editSelectedSize = ref('');
 const todoSize = [
     { value: 'small', name: 'Small (15 Min)' },
     { value: 'medium', name: 'Medium (30 Min)' },
     { value: 'big', name: 'Large (1h +)' },
 ];
-
-async function editTodo(slotProps: any){
-  try {
-    const todoId = slotProps.id;
-    const response = await axios.put(`http://localhost:3030/todos/${todoId}`, {
-      //title
-      //size
-    });
-  } catch (error: any) {
-    console.log("Error editing todo: ", error)
-  }
-}
 
 async function deleteTodo(slotProps: any){
   try {
