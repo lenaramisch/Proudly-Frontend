@@ -58,8 +58,6 @@ const router = useRouter();
             Authorization: 'Bearer ' + varToken
           }
       })
-
-- Add other axios functions
 */
 
 async function loginUser() {

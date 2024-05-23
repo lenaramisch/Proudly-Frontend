@@ -95,6 +95,10 @@ import axios from 'axios';
 import EditTodoPopupForm from '~/components/EditTodoPopupForm.vue'
 import NewTodoPopupForm from '../components/NewTodoPopupForm.vue'
 
+definePageMeta({
+  middleware: 'auth'
+});
+
 // initialize components based on data attribute selectors
 onMounted(() => {
   initFlowbite()
