@@ -153,6 +153,15 @@ const todoSize = [
     { value: 'big', name: 'Large (1h +)' },
 ];
 
+(function() {
+    const token = store.token;
+    if (token !== "") {
+        axios.defaults.headers.common['Authorization'] = token;
+    } else {
+        axios.defaults.headers.common['Authorization'] = null;
+    }
+})();
+
 async function deleteTodo(slotProps: any){
   try {
     const todoId = slotProps.id;

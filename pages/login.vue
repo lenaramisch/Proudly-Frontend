@@ -45,21 +45,6 @@ const password = ref('');
 const store = useUserStore();
 const router = useRouter();
 
-
-/*
-- Put user token into header for each axios function!:
-
-    axios.post("https://localhost:3030/...", 
-      {
-        DATA TO SENT
-      },
-      {
-        headers: {
-            Authorization: 'Bearer ' + varToken
-          }
-      })
-*/
-
 async function loginUser() {
   try {
     const response = await axios.post("http://localhost:3030/login", {
