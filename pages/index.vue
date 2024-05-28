@@ -248,6 +248,13 @@ async function getUserData() {
     console.error('Error verifying token:', error);
   }
 };
+
+setInterval(async () => {
+  const userId = store.userid;
+  const petRequest = await axios.get(`http://localhost:3030/pets/user/${userId}`);
+  store.petsHappiness = petRequest.data.current_happiness;
+  store.petsXP = petRequest.data.xp;
+}, 600000);
 </script>
 
 <style>
