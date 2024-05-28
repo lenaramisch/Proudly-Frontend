@@ -59,12 +59,12 @@
         <template #header>Edit Todo</template>
         <template #content>
           <fwb-input
-                v-model="editTodoTitle"
+                v-model="editedTodoTitle"
                 placeholder="What is on your mind?"
                 label="Todo Title"
             />
             <fwb-select
-                v-model="editSelectedSize"
+                v-model="editedSelectedSize"
                 :options="todoSize"
                 label="Todo Size"
             />
@@ -121,6 +121,13 @@ const openModal = () => {
 const openModal2 = (slotProps: any) => {
   const todoId = slotProps.id;
   store.editTodoId = todoId;
+  const oldTodoData = store.todos.find(todo => todo.id === todoId);
+  if (oldTodoData) {
+    store.oldTodoSize = oldTodoData.size;
+    store.oldTodoTitle = oldTodoData.title;
+  }
+  editedTodoTitle.value = store.oldTodoTitle;
+  editedSelectedSize.value = store.oldTodoSize;
   isModalOpened2.value = true;
 }
 
@@ -133,10 +140,10 @@ const submitHandler = ()=>{
 }
 
 const submitHandler2 = ()=> {
-  store.editTodoSize = editSelectedSize.value
-  store.editTodoTitle = editTodoTitle.value
-  editTodoTitle.value  = "";
-  editSelectedSize.value = ""
+  store.editedTodoSize = editedSelectedSize.value
+  store.editedTodoTitle = editedTodoTitle.value
+  editedTodoTitle.value  = "";
+  editedSelectedSize.value = ""
   isModalOpened2.value = false;
 }
 
@@ -145,8 +152,8 @@ const token = store.token;
 
 const todoTitle = ref('');
 const selectedSize = ref('');
-const editTodoTitle = ref('');
-const editSelectedSize = ref('');
+const editedTodoTitle = ref('');
+const editedSelectedSize = ref('');
 const todoSize = [
     { value: 'small', name: 'Small (15 Min)' },
     { value: 'medium', name: 'Medium (30 Min)' },

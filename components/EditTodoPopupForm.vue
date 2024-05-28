@@ -48,8 +48,8 @@ async function editTodo(){
     try {
     const todoId = store.editTodoId
     await axios.put(`http://localhost:3030/todos/${todoId}`, {
-        title: store.editTodoTitle,
-        size: store.editTodoSize
+        title: store.editedTodoTitle,
+        size: store.editedTodoSize
     });
     } catch (error) {
         console.log("Error editing todo: ", error)
@@ -58,7 +58,7 @@ async function editTodo(){
 </script>
 
 <template>
-    <div v-if="isOpen" class="modal-mask">
+    <div v-if="isOpen" class="modal-mask" @keydown.enter="emit('modal-close'); editTodoHandler()">
         <div class="modal-wrapper">
             <div class="modal-container" ref="target">
                 <div class="modal-header">

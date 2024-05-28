@@ -6,7 +6,7 @@
         From Tasks to Tail Wags
       </p>
       <div class="login">
-        <div class="mb-5">
+        <div class="mb-5" @keydown.enter="loginUser">
           <input v-model="username" id="username-input" class="mb-4 input" placeholder="Username" type="text">
           <input v-model="password" id="password-input" class="input" placeholder="Password" type="password">
         </div>

@@ -61,7 +61,7 @@ async function newTodoHandler() {
 </script>
 
 <template>
-    <div v-if="isOpen" class="modal-mask">
+    <div v-if="isOpen" class="modal-mask" @keydown.enter="emit('modal-close'); newTodoHandler()">
         <div class="modal-wrapper">
             <div class="modal-container" ref="target">
                 <div class="modal-header">

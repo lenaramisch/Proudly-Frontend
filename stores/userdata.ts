@@ -19,7 +19,9 @@ export const useUserStore = defineStore('token', {
     newTodoTitle: "",
     newTodoSize: "",
     editTodoId: 0,
-    editTodoTitle: "",
-    editTodoSize: ""
+    oldTodoTitle: "",
+    oldTodoSize: "",
+    editedTodoTitle: "",
+    editedTodoSize: ""
     })
 })

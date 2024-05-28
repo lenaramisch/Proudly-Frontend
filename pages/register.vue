@@ -4,7 +4,7 @@
       <h1 class="jersey-10-regular" tag="h1">
         Create your account
       </h1>
-      <div>
+      <div @keydown.enter="register">
         <!-- Input fields -->
         <input class="input"
           v-model="username"
