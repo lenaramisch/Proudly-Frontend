@@ -24,6 +24,7 @@
         </div>
       </div>
     </nav>
+    </div>
     <div>
       <fwb-button id="editProfileButton" color="default" outline @click="openModal3">Edit Profile</fwb-button>
     </div>
@@ -57,17 +58,32 @@
           </template>
       </NewTodoPopupForm>
       </div>
-      <DataTable class="todoList" :value=store.todos stripedRows :tableStyle="{'max-width': '25rem'}">
-        <Column field="title" header="Todos" style="width: 25%"></Column>
-        <Column field="id" header="" style="width: 25%">
-          <template #body="slotProps">
-              <fwb-button @click="openModal2(slotProps.data)" class="p-2 m-1" color="yellow" outline><img src="../assets/icons/pen.svg" class="h-4"></fwb-button>
-              <fwb-button @click="deleteTodo(slotProps.data)" class="p-2 m-1" color="red" outline><img src="../assets/icons/bin.svg" class="h-4"></fwb-button>
-              <fwb-button @click="completeTodo(slotProps.data)" class="p-2 m-1" color="green" outline><img src="../assets/icons/check.svg" class="h-4"></fwb-button>
-          </template>
-        </Column>
-      </DataTable>
-    </div>
+      <div class="todoList">
+        <fwb-tabs v-model="activeTab" class="p-5">
+        <fwb-tab name="first" title="Todos">
+          <DataTable :value=store.todos stripedRows :tableStyle="{'max-width': '25rem'}">
+            <Column field="title" header="" style="width: 25%"></Column>
+            <Column field="id" header="" style="width: 25%">
+              <template #body="slotProps">
+                <fwb-button @click="openModal2(slotProps.data)" class="p-2 m-1" color="yellow" outline><img src="../assets/icons/pen.svg" class="h-4"></fwb-button>
+                <fwb-button @click="deleteTodo(slotProps.data)" class="p-2 m-1" color="red" outline><img src="../assets/icons/bin.svg" class="h-4"></fwb-button>
+                <fwb-button @click="completeTodo(slotProps.data)" class="p-2 m-1" color="green" outline><img src="../assets/icons/check.svg" class="h-4"></fwb-button>
+              </template>
+            </Column>
+          </DataTable>
+        </fwb-tab>
+        <fwb-tab name="second" title="Archive">
+          <DataTable :value=store.archive stripedRows :tableStyle="{'max-width': '25rem'}">
+            <Column field="title" header="" style="width: 25%"></Column>
+            <Column field="id" header="" style="width: 25%">
+              <template #body="slotProps">
+                <fwb-button @click="recreateTodo(slotProps.data)" class="p-2 m-1" color="default" outline><img src="../assets/icons/recreate.svg" class="h-4"></fwb-button>
+                </template>
+            </Column>
+          </DataTable>
+        </fwb-tab>
+      </fwb-tabs>
+      </div>
     <div>
       <fwb-button id="addTodoButton" color="default" outline @click="openModal">Add new todo</fwb-button>
     </div>
@@ -104,7 +120,9 @@ import {
   FwbHeading,
   FwbButton,
   FwbSelect,
-  FwbInput
+  FwbInput,
+  FwbTab,
+  FwbTabs
 } from 'flowbite-vue'
 import { useUserStore } from '~/stores/userdata'
 import axios from 'axios';
@@ -127,6 +145,7 @@ onBeforeMount(() => {
   getUserData()
 })
 
+const activeTab = ref('first')
 const isModalOpened = ref(false);
 const isModalOpened2 = ref(false);
 const isModalOpened3 = ref(false);
@@ -202,6 +221,25 @@ const editedPetName = ref('');
     }
 })();
 
+async function recreateTodo(slotProps: any) {
+  try {
+    const todoId = slotProps.id;
+    const todoData = store.archive.find(todo => todo.id === todoId);
+    const userId = store.userid;
+    if (todoData) {
+      await axios.post(`http://localhost:3030/todos/user/${userId}`,
+        {
+            title: todoData.title,
+            size: todoData.size
+        });
+      getActiveTodos()
+      getTodoArchive()
+    }
+  } catch (error: any) {
+    console.log("Error deleting todo: ", error)
+  }
+}
+
 async function deleteTodo(slotProps: any){
   try {
     const todoId = slotProps.id;
@@ -223,6 +261,7 @@ async function completeTodo(slotProps: any){
       store.petsHappiness = petResult.data.current_happiness
       store.petsXP = petResult.data.xp
       getActiveTodos()
+      getTodoArchive()
     } else {
       console.log("Getting pets updated happiness and xp failed")
     }
@@ -252,6 +291,27 @@ async function getActiveTodos() {
     }
 }
 
+async function getTodoArchive() {
+  try {
+      const userId = store.userid;
+      const response = await axios.get(`http://localhost:3030/todos/user/archive/${userId}`);
+      const archiveTodos = response.data;
+
+      if (Array.isArray(archiveTodos)) {
+            store.archive = archiveTodos.map(todo => ({
+            id: todo.id,
+            userid: todo.user_id,
+            title: todo.title,
+            size: todo.size
+            }));
+        } else {
+            console.log("No archived todos found.");
+        }
+    } catch (error) {
+      console.log("Error getting archived todos: ", error)
+    }
+  }
+
 function logoutUser() {
   store.$reset
 }
@@ -271,6 +331,7 @@ async function getUserData() {
         store.petsHappiness = petRequest.data.current_happiness;
         store.petsXP = petRequest.data.xp;
         getActiveTodos();
+        getTodoArchive();
       } else {
         console.log("Failed to get pet")
       }
@@ -326,7 +387,7 @@ html {background-color: #afc8e6;}
 }
 
 .todoList {
-  width: 450px;
+  width: 400px;
   position: fixed;
   left: 65%;
   top: 17%;

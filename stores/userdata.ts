@@ -16,6 +16,13 @@ export const useUserStore = defineStore('token', {
         "size": ""
     }
     ],
+    archive: [{
+        "id": 0,
+        "userid": 0,
+        "title": "",
+        "size": ""
+    }
+    ],
     newTodoTitle: "",
     newTodoSize: "",
     editTodoId: 0,
