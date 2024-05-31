@@ -61,19 +61,19 @@
       <div class="todoList">
         <fwb-tabs v-model="activeTab" class="p-5">
         <fwb-tab name="first" title="Todos">
-          <DataTable :value=store.todos stripedRows :tableStyle="{'max-width': '25rem'}">
+          <DataTable class="transparent" :value=store.todos :tableStyle="{'max-width': '25rem'}">
             <Column field="title" header="" style="width: 25%"></Column>
             <Column field="id" header="" style="width: 25%">
               <template #body="slotProps">
-                <fwb-button @click="openModal2(slotProps.data)" class="p-2 m-1" color="yellow" outline><img src="../assets/icons/pen.svg" class="h-4"></fwb-button>
-                <fwb-button @click="deleteTodo(slotProps.data)" class="p-2 m-1" color="red" outline><img src="../assets/icons/bin.svg" class="h-4"></fwb-button>
-                <fwb-button @click="completeTodo(slotProps.data)" class="p-2 m-1" color="green" outline><img src="../assets/icons/check.svg" class="h-4"></fwb-button>
-              </template>
+                  <fwb-button @click="openModal2(slotProps.data)" class="p-2 m-1" color="yellow" outline><img src="../assets/icons/pen.svg" class="h-4"></fwb-button>
+                  <fwb-button @click="deleteTodo(slotProps.data)" class="p-2 m-1" color="red" outline><img src="../assets/icons/bin.svg" class="h-4"></fwb-button>
+                  <fwb-button @click="completeTodo(slotProps.data)" class="p-2 m-1" color="green" outline><img src="../assets/icons/check.svg" class="h-4"></fwb-button>
+                </template>
             </Column>
           </DataTable>
         </fwb-tab>
         <fwb-tab name="second" title="Archive">
-          <DataTable :value=store.archive stripedRows :tableStyle="{'max-width': '25rem'}">
+          <DataTable class="transparent":value=store.archive :tableStyle="{'max-width': '25rem'}">
             <Column field="title" header="" style="width: 25%"></Column>
             <Column field="id" header="" style="width: 25%">
               <template #body="slotProps">
@@ -419,4 +419,20 @@ html {background-color: #afc8e6;}
   top: 82%;
 }
 
+.transparent .p-datatable-tbody > tr {
+  background-color: transparent;
+  border: none;
+}
+
+.transparent .p-datatable-thead > tr > th {
+  background-color: transparent !important;
+  border: none !important; 
+  padding: 0 !important; 
+}
+
+.transparent .p-datatable-thead > tr > th .p-column-header-content {
+  background-color: transparent !important;
+  border: none !important; 
+  padding: 0 !important;
+}
 </style>
