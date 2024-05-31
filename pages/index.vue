@@ -25,6 +25,22 @@
       </div>
     </nav>
     <div>
+      <fwb-button id="editProfileButton" color="default" outline @click="openModal3">Edit Profile</fwb-button>
+    </div>
+    <EditProfilePopupForm :isOpen="isModalOpened3" @submit="submitHandler3" name="second-modal">
+      <template #header>Edit Profile</template>
+      <template #content>
+        <fwb-input
+              v-model="editedUserName"
+              label="Your username"
+          />
+          <fwb-input
+              v-model="editedPetName"
+              label="Your pets name"
+          />
+        </template>
+    </EditProfilePopupForm>
+    <div>
       <NewTodoPopupForm :isOpen="isModalOpened" @submit="submitHandler" name="first-modal">
         <template #header>Create new Todo</template>
         <template #content>
@@ -113,6 +129,7 @@ onBeforeMount(() => {
 
 const isModalOpened = ref(false);
 const isModalOpened2 = ref(false);
+const isModalOpened3 = ref(false);
 
 const openModal = () => {
   isModalOpened.value = true;
@@ -131,6 +148,12 @@ const openModal2 = (slotProps: any) => {
   isModalOpened2.value = true;
 }
 
+const openModal3 = (slotProps: any) => {
+  editedPetName.value = store.petname;
+  editedUserName.value = store.username;
+  isModalOpened3.value = true;
+}
+
 const submitHandler = ()=>{
   store.newTodoSize = selectedSize.value
   store.newTodoTitle = todoTitle.value
@@ -147,6 +170,14 @@ const submitHandler2 = ()=> {
   isModalOpened2.value = false;
 }
 
+const submitHandler3 = ()=> {
+  console.log("editedUsername is: " + editedUserName.value)
+  store.editedUserName = editedUserName.value
+  console.log("editedPetName is: " + editedPetName.value)
+  store.editedPetName = editedPetName.value
+  isModalOpened3.value = false;
+}
+
 const store = useUserStore();
 const token = store.token;
 
@@ -159,6 +190,8 @@ const todoSize = [
     { value: 'medium', name: 'Medium (30 Min)' },
     { value: 'big', name: 'Large (1h +)' },
 ];
+const editedUserName = ref('');
+const editedPetName = ref('');
 
 (function() {
     const token = store.token;
@@ -302,6 +335,12 @@ html {background-color: #afc8e6;}
 #addTodoButton {
   position:fixed;
   left:65%;
+  top: 75%;
+}
+
+#editProfileButton {
+  position: fixed;
+  left: 75%;
   top: 75%;
 }
 
