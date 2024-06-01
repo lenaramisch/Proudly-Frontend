@@ -18,7 +18,6 @@ onClickOutside(target, ()=>emit('modal-close'))
 async function editProfileHandler() {
     emit('submit');
     //check if new value = old value
-    console.log("In editProfileHandler now. Got data: " + store.editedPetName)
     if (store.petname !== store.editedPetName) {
         editPetName()
         store.petname = store.editedPetName

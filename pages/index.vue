@@ -142,6 +142,13 @@ onMounted(() => {
 })
 
 onBeforeMount(() => {
+  const tokenCookie = store.getTokenCookie()
+  if (tokenCookie) {
+    const storeToken = store.token;
+    if (storeToken === '') {
+      store.token = tokenCookie;
+    }
+  }
   getUserData()
 })
 
@@ -313,6 +320,7 @@ async function getTodoArchive() {
   }
 
 function logoutUser() {
+  store.clearTokenCookie()
   store.$reset
 }
 
