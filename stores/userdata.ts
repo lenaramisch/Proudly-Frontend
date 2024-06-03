@@ -49,13 +49,13 @@ export const useUserStore = defineStore('token', {
             document.cookie = 'token'+"=; expires="+date.toUTCString()+"; path=/";
         },
         getTokenCookie() {
-            const value = "; " + document.cookie;
-            const parts = value.split("; " + 'token' + "=");
-            console.log(JSON.stringify(parts))
+            if (process.client) {
+                const value = "; " + document.cookie;
+                const parts = value.split("; " +"token" + "=");
             
             if (parts.length == 2) {
-                console.log('The correct cookie is: ', parts[1])
-                return parts[1]
+                return parts[1];
             }
-        }
+            return null;
+        }}
 }})

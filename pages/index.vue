@@ -139,6 +139,12 @@ onMounted(() => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const name = 'IndexPage'
+  setInterval(async () => {
+  const userId = store.userid;
+  const petRequest = await axios.get(`http://localhost:3030/pets/user/${userId}`);
+  store.petsHappiness = petRequest.data.current_happiness;
+  store.petsXP = petRequest.data.xp;
+}, 600000);
 })
 
 onBeforeMount(() => {
@@ -149,6 +155,7 @@ onBeforeMount(() => {
       store.token = tokenCookie;
     }
   }
+  setAuthorizationHeader()
   getUserData()
 })
 
@@ -205,7 +212,6 @@ const submitHandler3 = ()=> {
 }
 
 const store = useUserStore();
-const token = store.token;
 
 const todoTitle = ref('');
 const selectedSize = ref('');
@@ -219,14 +225,15 @@ const todoSize = [
 const editedUserName = ref('');
 const editedPetName = ref('');
 
-(function() {
+function setAuthorizationHeader() {
     const token = store.token;
     if (token !== "") {
+        console.log("Set authorization token" + token)
         axios.defaults.headers.common['Authorization'] = token;
     } else {
         axios.defaults.headers.common['Authorization'] = null;
     }
-})();
+};
 
 async function recreateTodo(slotProps: any) {
   try {
@@ -324,39 +331,51 @@ function logoutUser() {
   store.$reset
 }
 
+async function getUserName() {
+  try {
+    const userId = store.userid;
+    const response = await axios.get(`http://localhost:3030/users/${userId}`);
+    //not working??
+    console.log('Received response:', JSON.stringify(response));
+    const userData = response.data;
+    if (userData) {
+      store.username = userData.username;
+    } else {
+      console.log("Failed to get username")
+    }
+  } catch (error: any){
+    console.error('Error getting username:', error);
+  }
+}
+
 async function getUserData() {
   try {
     const response = await axios.post("http://localhost:3030/verify", {
-      token: token
+      token: store.token
     });
-    if (response.data.userid && response.data.petid) {
+    if (response.data) {
       store.userid = response.data.userid;
       store.petid = response.data.petid;
       const userId = store.userid;
       const petRequest = await axios.get(`http://localhost:3030/pets/user/${userId}`);
-      if (petRequest.data.name) {
+      if (petRequest.data) {
         store.petname = petRequest.data.name;
         store.petsHappiness = petRequest.data.current_happiness;
         store.petsXP = petRequest.data.xp;
-        getActiveTodos();
-        getTodoArchive();
+        await getActiveTodos();
+        await getTodoArchive();
+        await getUserName();
       } else {
         console.log("Failed to get pet")
       }
       } else {
-            alert("Token is not valid");
+            alert("Token is not valid. Please log in.");
+            return navigateTo('/login');
         }
   } catch (error) {
     console.error('Error verifying token:', error);
   }
 };
-
-setInterval(async () => {
-  const userId = store.userid;
-  const petRequest = await axios.get(`http://localhost:3030/pets/user/${userId}`);
-  store.petsHappiness = petRequest.data.current_happiness;
-  store.petsXP = petRequest.data.xp;
-}, 600000);
 </script>
 
 <style>
