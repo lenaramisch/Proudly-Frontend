@@ -83,6 +83,9 @@
           </DataTable>
         </fwb-tab>
       </fwb-tabs>
+      <fwb-toast id="toast" v-if="showToast" type="success">
+        Todo successfully recreated!
+      </fwb-toast>
       </div>
     <div>
       <fwb-button id="addTodoButton" color="default" outline @click="openModal">Add new todo</fwb-button>
@@ -122,7 +125,8 @@ import {
   FwbSelect,
   FwbInput,
   FwbTab,
-  FwbTabs
+  FwbTabs,
+  FwbToast
 } from 'flowbite-vue'
 import { useUserStore } from '~/stores/userdata'
 import axios from 'axios';
@@ -162,6 +166,7 @@ const activeTab = ref('first')
 const isModalOpened = ref(false);
 const isModalOpened2 = ref(false);
 const isModalOpened3 = ref(false);
+const showToast = ref(false);
 
 const openModal = () => {
   isModalOpened.value = true;
@@ -248,6 +253,8 @@ async function recreateTodo(slotProps: any) {
         });
       await getActiveTodos()
       await getTodoArchive()
+      showToast.value = true;
+      setTimeout(function() { showToast.value = false }, 5000);
     }
   } catch (error: any) {
     console.log("Error deleting todo: ", error)
@@ -457,5 +464,13 @@ html {background-color: #afc8e6;}
   background-color: transparent !important;
   border: none !important; 
   padding: 0 !important;
+}
+
+#toast {
+  position: fixed;
+  top: 82%;
+  height: 3em;
+  background-color: transparent;
+  color: #1D3461;
 }
 </style>
