@@ -134,10 +134,11 @@ definePageMeta({
 });
 
 // initialize components based on data attribute selectors
-onMounted(() => {
+onMounted(async () => {
   initFlowbite()
-
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  await setAuthorizationHeader()
+  await getUserData()
   const name = 'IndexPage'
   setInterval(async () => {
   const userId = store.userid;
@@ -147,7 +148,7 @@ onMounted(() => {
 }, 600000);
 })
 
-onBeforeMount(() => {
+onBeforeMount(async () => {
   const tokenCookie = store.getTokenCookie()
   if (tokenCookie) {
     const storeToken = store.token;
@@ -155,8 +156,6 @@ onBeforeMount(() => {
       store.token = tokenCookie;
     }
   }
-  setAuthorizationHeader()
-  getUserData()
 })
 
 const activeTab = ref('first')
@@ -204,9 +203,7 @@ const submitHandler2 = ()=> {
 }
 
 const submitHandler3 = ()=> {
-  console.log("editedUsername is: " + editedUserName.value)
   store.editedUserName = editedUserName.value
-  console.log("editedPetName is: " + editedPetName.value)
   store.editedPetName = editedPetName.value
   isModalOpened3.value = false;
 }
@@ -225,14 +222,17 @@ const todoSize = [
 const editedUserName = ref('');
 const editedPetName = ref('');
 
-function setAuthorizationHeader() {
-    const token = store.token;
-    if (token !== "") {
-        console.log("Set authorization token" + token)
-        axios.defaults.headers.common['Authorization'] = token;
-    } else {
-        axios.defaults.headers.common['Authorization'] = null;
-    }
+async function setAuthorizationHeader() {
+    try {
+      const token = store.token;
+      if (token !== "") {
+          axios.defaults.headers.common['Authorization'] = token;
+      } else {
+          axios.defaults.headers.common['Authorization'] = null;
+      }
+    } catch (err: any) {
+      console.log("Error while setting Auth Header " + err)
+    } 
 };
 
 async function recreateTodo(slotProps: any) {
@@ -246,8 +246,8 @@ async function recreateTodo(slotProps: any) {
             title: todoData.title,
             size: todoData.size
         });
-      getActiveTodos()
-      getTodoArchive()
+      await getActiveTodos()
+      await getTodoArchive()
     }
   } catch (error: any) {
     console.log("Error deleting todo: ", error)
@@ -257,9 +257,8 @@ async function recreateTodo(slotProps: any) {
 async function deleteTodo(slotProps: any){
   try {
     const todoId = slotProps.id;
-    console.log("Sending to backend: todoId = " + todoId)
     await axios.delete(`http://localhost:3030/todos/${todoId}`);
-    getActiveTodos()
+    await getActiveTodos()
   } catch (error: any) {
     console.log("Error deleting todo: ", error)
   }
@@ -274,8 +273,8 @@ async function completeTodo(slotProps: any){
     if (petResult.data.current_happiness) {
       store.petsHappiness = petResult.data.current_happiness
       store.petsXP = petResult.data.xp
-      getActiveTodos()
-      getTodoArchive()
+      await getActiveTodos()
+      await getTodoArchive()
     } else {
       console.log("Getting pets updated happiness and xp failed")
     }
@@ -310,7 +309,6 @@ async function getTodoArchive() {
       const userId = store.userid;
       const response = await axios.get(`http://localhost:3030/todos/user/archive/${userId}`);
       const archiveTodos = response.data;
-
       if (Array.isArray(archiveTodos)) {
             store.archive = archiveTodos.map(todo => ({
             id: todo.id,
@@ -335,8 +333,6 @@ async function getUserName() {
   try {
     const userId = store.userid;
     const response = await axios.get(`http://localhost:3030/users/${userId}`);
-    //not working??
-    console.log('Received response:', JSON.stringify(response));
     const userData = response.data;
     if (userData) {
       store.username = userData.username;
@@ -357,15 +353,15 @@ async function getUserData() {
       store.userid = response.data.userid;
       store.petid = response.data.petid;
       const userId = store.userid;
-      const petRequest = await axios.get(`http://localhost:3030/pets/user/${userId}`);
-      if (petRequest.data) {
-        store.petname = petRequest.data.name;
-        store.petsHappiness = petRequest.data.current_happiness;
-        store.petsXP = petRequest.data.xp;
+      const petResponse = await axios.get(`http://localhost:3030/pets/user/${userId}`);
+      if (petResponse.data) {
+        store.petname = petResponse.data.name;
+        store.petsHappiness = petResponse.data.current_happiness;
+        store.petsXP = petResponse.data.xp;
         await getActiveTodos();
         await getTodoArchive();
         await getUserName();
-      } else {
+        } else {
         console.log("Failed to get pet")
       }
       } else {

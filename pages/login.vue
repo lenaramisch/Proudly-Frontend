@@ -33,7 +33,6 @@ import { useRouter } from 'vue-router'
 
 // initialize components based on data attribute selectors
 onMounted(() => {
-  console.log("initialized flowbite")
   initFlowbite()
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

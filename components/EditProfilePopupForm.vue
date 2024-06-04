@@ -19,15 +19,12 @@ async function editProfileHandler() {
     emit('submit');
     //check if new value = old value
     if (store.petname !== store.editedPetName) {
-        editPetName()
+        await editPetName()
         store.petname = store.editedPetName
-        console.log("Edited petname: " + store.petname)
     }
     if (store.username !== store.editedUserName) {
-        editUserName()
+        await editUserName()
         store.username = store.editedUserName
-        console.log("store.editedUsername = " + store.editedUserName)
-        console.log("Edited username: " + store.username)
     }
 }
 
