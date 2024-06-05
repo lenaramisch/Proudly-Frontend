@@ -18,6 +18,11 @@
           v-model="petname"
           placeholder="Pet Name"
         >
+        <fwb-select
+                v-model="selectedPetImageKey"
+                :options="petImageKey"
+                label="Todo Size"
+            />
       </div>
       <div>
         <!-- Buttons -->
@@ -37,15 +42,23 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { onMounted, ref } from 'vue'
 import { initFlowbite } from 'flowbite'
-import { FwbFooter } from 'flowbite-vue'
+import { FwbFooter, FwbSelect } from 'flowbite-vue'
 import axios from 'axios';
 import { useRouter } from 'vue-router'
+import { useUserStore } from '~/stores/userdata'
 
+const store = useUserStore();
 const username = ref('')
 const petname = ref('')
 const password = ref('')
 const router = useRouter();
-
+const petImageKey = [
+    { value: 'cat', name: 'Cat' },
+    { value: 'dog', name: 'Dog' },
+    { value: 'bird', name: 'Bird' },
+    { value: 'turtle', name: 'Turtle' },
+];
+const selectedPetImageKey = ref('');
 
 // initialize components based on data attribute selectors
 onMounted(() => {
@@ -56,11 +69,14 @@ onMounted(() => {
 })
 
 async function register() {
+  store.petImageKey = selectedPetImageKey.value;
+  const imageKey = store.petImageKey;
   try {
     const response = await axios.post("http://localhost:3030/register", {
       username: username.value,
       password: password.value,
-      petname: petname.value
+      petname: petname.value,
+      image_key: imageKey
     });
     if (response.status === 201) {
       alert("Account created! You can log in now")

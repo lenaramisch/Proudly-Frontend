@@ -112,8 +112,7 @@
         <fwb-progress :progress="remainingXP" size="sm" label="" />
       </div>
     <fwb-heading id="petName" tag="h2"> {{ store.petname }}</fwb-heading>
-    <img id="petImage" src="../assets/images/pet_placeholder.gif" alt="pet placeholder"/>
-    
+    <iframe id="petImage" :src= store.petImageSrc width="480" height="480" style="" frameBorder="0"></iframe>
     <div class="happinessBar">
       <div class="max-w-2xl bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 m-16">
         <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: store.petsHappiness + '%' }"><p id="happinessLabel">Happiness</p></div>
@@ -231,6 +230,8 @@ const todoSize = [
     { value: 'medium', name: 'Medium (30 Min)' },
     { value: 'big', name: 'Large (1h +)' },
 ];
+
+const petImageKey = store.petImageKey;
 const editedUserName = ref('');
 const editedPetName = ref('');
 let level = store.petLvl;
@@ -252,6 +253,23 @@ function calculateLvlAfterReload() {
   level = Math.floor(xp/100);
   store.petLvl = level;
   remainingXP.value = xp%100;
+}
+
+function resolvePetImageKey() {
+  switch (petImageKey) {
+    case 'dog':
+        store.petImageSrc = 'https://giphy.com/embed/TEiPSdIPfdZxuTDJ2O';
+        break;
+    case 'cat':
+        store.petImageSrc = 'https://giphy.com/embed/l0Iyc2Jb4Dqaidg1a'
+        break;
+    case 'bird':
+        store.petImageSrc = 'https://giphy.com/embed/2nwOVFoq4NoI'
+        break;
+    case 'turtle':
+        store.petImageSrc = 'https://giphy.com/embed/ZXfaB9ZoOpcdqbUjAb'
+        break;
+}
 }
 
 async function setAuthorizationHeader() {
@@ -391,12 +409,14 @@ async function getUserData() {
       const petResponse = await axios.get(`http://localhost:3030/pets/user/${userId}`);
       if (petResponse.data) {
         store.petname = petResponse.data.name;
+        store.petImageKey = petResponse.data.image_key;
         store.petsHappiness = petResponse.data.current_happiness;
         store.petsXP = petResponse.data.xp;
         await getActiveTodos();
         await getTodoArchive();
         await getUserName();
         calculateLvlAfterReload();
+        resolvePetImageKey();
         } else {
         console.log("Failed to get pet")
       }
@@ -476,7 +496,7 @@ html {background-color: #afc8e6;}
 #petImage {
   position:fixed;
     left:30%;
-    top: 30%;
+    top: 15%;
     width:450px;
 }
 

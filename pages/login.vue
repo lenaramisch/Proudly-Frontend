@@ -50,6 +50,7 @@ async function loginUser() {
       username: username.value,
       password: password.value
     });
+    console.log(response)
     if (response.data.data && response.data.data.token) {
       store.setTokenCookie(response.data.data.token);
       store.username = username.value;

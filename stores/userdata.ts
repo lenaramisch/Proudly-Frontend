@@ -7,6 +7,8 @@ export const useUserStore = defineStore('token', {
     petid: 0,
     userid: 0,
     petname: '',
+    petImageKey: '',
+    petImageSrc: '',
     petsHappiness: 0,
     petsXP: 0,
     petLvl: 0,
