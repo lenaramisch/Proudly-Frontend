@@ -105,12 +105,18 @@
             />
           </template>
       </EditTodoPopupForm>
+      <div class="p-5 w-64 levelContainer">
+        <h5 id="levelLabel" class="mb-2 text-2xl font-bold tracking-tight">
+          Level {{ level }}
+        </h5>
+        <fwb-progress :progress="remainingXP" size="sm" label="" />
+      </div>
     <fwb-heading id="petName" tag="h2"> {{ store.petname }}</fwb-heading>
     <img id="petImage" src="../assets/images/pet_placeholder.gif" alt="pet placeholder"/>
     
     <div class="happinessBar">
       <div class="max-w-2xl bg-gray-200 rounded-full h-2.5 dark:bg-gray-700 m-16">
-        <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: store.petsHappiness + '%' }"></div>
+        <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: store.petsHappiness + '%' }"><p id="happinessLabel">Happiness</p></div>
       </div>
     </div>
 </template>
@@ -126,7 +132,8 @@ import {
   FwbInput,
   FwbTab,
   FwbTabs,
-  FwbToast
+  FwbToast,
+  FwbProgress
 } from 'flowbite-vue'
 import { useUserStore } from '~/stores/userdata'
 import axios from 'axios';
@@ -226,6 +233,26 @@ const todoSize = [
 ];
 const editedUserName = ref('');
 const editedPetName = ref('');
+let level = store.petLvl;
+const remainingXP = ref(0)
+
+function calculateLvl() {
+  const oldLevel = level;
+  const xp = store.petsXP;
+  level = Math.floor(xp/100);
+  store.petLvl = level;
+  remainingXP.value = xp%100;
+  if (level > oldLevel) {
+    alert("Your pet reached a new level and is proud of you! Go get yourself some treat now!")
+  } 
+}
+
+function calculateLvlAfterReload() {
+  const xp = store.petsXP;
+  level = Math.floor(xp/100);
+  store.petLvl = level;
+  remainingXP.value = xp%100;
+}
 
 async function setAuthorizationHeader() {
     try {
@@ -282,6 +309,7 @@ async function completeTodo(slotProps: any){
       store.petsXP = petResult.data.xp
       await getActiveTodos()
       await getTodoArchive()
+      calculateLvl()
     } else {
       console.log("Getting pets updated happiness and xp failed")
     }
@@ -368,6 +396,7 @@ async function getUserData() {
         await getActiveTodos();
         await getTodoArchive();
         await getUserName();
+        calculateLvlAfterReload();
         } else {
         console.log("Failed to get pet")
       }
@@ -416,6 +445,15 @@ html {background-color: #afc8e6;}
     width:50%;
 }
 
+#happinessLabel {
+  position:fixed; 
+    bottom:6%;
+    left:61%;
+    font-weight: 300;
+    font-size:smaller;
+    color: #1D3461
+}
+
 .todoList {
   width: 400px;
   position: fixed;
@@ -447,6 +485,15 @@ html {background-color: #afc8e6;}
   font-size: 2em;
   left: 25%;
   top: 82%;
+  color: #1D3461;
+}
+
+.levelContainer {
+  position: fixed;
+}
+
+#levelLabel {
+  color:#1D3461
 }
 
 .transparent .p-datatable-tbody > tr {
