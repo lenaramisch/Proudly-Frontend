@@ -61,7 +61,7 @@
       <div class="todoList">
         <fwb-tabs v-model="activeTab" class="p-5">
         <fwb-tab name="first" title="Todos">
-          <DataTable class="transparent" :value=store.todos :tableStyle="{'max-width': '25rem'}">
+          <DataTable scrollable scrollHeight="320px" class="transparent" :value=store.todos :tableStyle="{'max-width': '25rem'}">
             <Column field="title" header="" style="width: 25%"></Column>
             <Column field="id" header="" style="width: 25%">
               <template #body="slotProps">
@@ -73,7 +73,7 @@
           </DataTable>
         </fwb-tab>
         <fwb-tab name="second" title="Archive">
-          <DataTable class="transparent":value=store.archive :tableStyle="{'max-width': '25rem'}">
+          <DataTable scrollable scrollHeight="320px" class="transparent":value=store.archive :tableStyle="{'max-width': '25rem'}">
             <Column field="title" header="" style="width: 25%"></Column>
             <Column field="id" header="" style="width: 25%">
               <template #body="slotProps">
