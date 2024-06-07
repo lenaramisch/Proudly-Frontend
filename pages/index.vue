@@ -139,10 +139,6 @@ import axios from 'axios';
 import EditTodoPopupForm from '~/components/EditTodoPopupForm.vue'
 import NewTodoPopupForm from '../components/NewTodoPopupForm.vue'
 
-definePageMeta({
-  middleware: 'auth'
-});
-
 // initialize components based on data attribute selectors
 onMounted(async () => {
   initFlowbite()
@@ -159,7 +155,8 @@ onMounted(async () => {
 })
 
 onBeforeMount(async () => {
-  const tokenCookie = store.getTokenCookie()
+  await checkForToken()
+  const tokenCookie = await store.getTokenCookie()
   if (tokenCookie) {
     const storeToken = store.token;
     if (storeToken === '') {
@@ -219,6 +216,17 @@ const submitHandler3 = ()=> {
   isModalOpened3.value = false;
 }
 
+async function checkForToken() {
+  if (!process.client) {
+        return
+    }
+    const token = await store.getTokenCookie()
+    if (!token) {
+        console.log("No cookie token found")
+        return navigateTo('/login');
+    }
+}
+
 const store = useUserStore();
 
 const todoTitle = ref('');
@@ -237,7 +245,7 @@ const editedPetName = ref('');
 let level = store.petLvl;
 const remainingXP = ref(0)
 
-function calculateLvl() {
+async function calculateLvl() {
   const oldLevel = level;
   const xp = store.petsXP;
   level = Math.floor(xp/100);
@@ -248,27 +256,27 @@ function calculateLvl() {
   } 
 }
 
-function calculateLvlAfterReload() {
+async function calculateLvlAfterReload() {
   const xp = store.petsXP;
   level = Math.floor(xp/100);
   store.petLvl = level;
   remainingXP.value = xp%100;
 }
 
-function resolvePetImageKey() {
-  switch (petImageKey) {
+async function resolvePetImageKey() {
+  switch (store.petImageKey) {
     case 'dog':
-        store.petImageSrc = 'https://giphy.com/embed/TEiPSdIPfdZxuTDJ2O';
-        break;
+      store.petImageSrc = 'https://giphy.com/embed/TEiPSdIPfdZxuTDJ2O';
+      break;
     case 'cat':
-        store.petImageSrc = 'https://giphy.com/embed/l0Iyc2Jb4Dqaidg1a'
-        break;
+      store.petImageSrc = 'https://giphy.com/embed/l0Iyc2Jb4Dqaidg1a'
+      break;
     case 'bird':
-        store.petImageSrc = 'https://giphy.com/embed/2nwOVFoq4NoI'
-        break;
+      store.petImageSrc = 'https://giphy.com/embed/2nwOVFoq4NoI'
+      break;
     case 'turtle':
-        store.petImageSrc = 'https://giphy.com/embed/ZXfaB9ZoOpcdqbUjAb'
-        break;
+      store.petImageSrc = 'https://giphy.com/embed/ZXfaB9ZoOpcdqbUjAb'
+      break;
 }
 }
 
@@ -327,7 +335,7 @@ async function completeTodo(slotProps: any){
       store.petsXP = petResult.data.xp
       await getActiveTodos()
       await getTodoArchive()
-      calculateLvl()
+      await calculateLvl()
     } else {
       console.log("Getting pets updated happiness and xp failed")
     }
@@ -377,8 +385,8 @@ async function getTodoArchive() {
     }
   }
 
-function logoutUser() {
-  store.clearTokenCookie()
+async function logoutUser() {
+  await store.clearTokenCookie()
   store.$reset
 }
 
@@ -415,13 +423,12 @@ async function getUserData() {
         await getActiveTodos();
         await getTodoArchive();
         await getUserName();
-        calculateLvlAfterReload();
-        resolvePetImageKey();
+        await calculateLvlAfterReload();
+        await resolvePetImageKey();
         } else {
         console.log("Failed to get pet")
       }
       } else {
-            alert("Token is not valid. Please log in.");
             return navigateTo('/login');
         }
   } catch (error) {

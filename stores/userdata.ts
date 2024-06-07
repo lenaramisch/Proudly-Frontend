@@ -37,21 +37,21 @@ export const useUserStore = defineStore('token', {
     editedPetName: ""
     }),
     actions: {
-        setTokenCookie(token: string) {
+        async setTokenCookie(token: string) {
             this.token = token;
             const today = new Date()
             const tomorrow = new Date(today)
             tomorrow.setDate(tomorrow.getDate() + 1)
             document.cookie = 'token'+"="+token+"; expires="+tomorrow.toUTCString()+"; path=/";
         },
-        clearTokenCookie() {
+        async clearTokenCookie() {
             const date = new Date();
             // Set it expire in -1 days
             date.setTime(date.getTime() + (-1 * 24 * 60 * 60 * 1000));
             // Set it
             document.cookie = 'token'+"=; expires="+date.toUTCString()+"; path=/";
         },
-        getTokenCookie() {
+        async getTokenCookie() {
             if (process.client) {
                 const value = "; " + document.cookie;
                 const parts = value.split("; " +"token" + "=");

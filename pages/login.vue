@@ -52,7 +52,7 @@ async function loginUser() {
     });
     console.log(response)
     if (response.data.data && response.data.data.token) {
-      store.setTokenCookie(response.data.data.token);
+      await store.setTokenCookie(response.data.data.token);
       store.username = username.value;
       await router.push('/');
       } else {

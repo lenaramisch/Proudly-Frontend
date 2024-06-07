@@ -21,7 +21,7 @@
         <fwb-select
                 v-model="selectedPetImageKey"
                 :options="petImageKey"
-                label="Todo Size"
+                label="Choose your pet"
             />
       </div>
       <div>
