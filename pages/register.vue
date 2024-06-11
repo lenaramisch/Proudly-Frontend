@@ -81,11 +81,13 @@ async function register() {
     if (response.status === 201) {
       alert("Account created! You can log in now")
       await router.push('/login');
-      } else {
-            alert("Something went wrong. Please try again!");
-        }
-  } catch (error) {
-    console.error('Error logging in:', error);
+      }
+  } catch (error: any) {
+    if (error.response && error.response.status === 400) {
+      alert("Username already taken. Please choose a different username.");
+    } else {
+      console.error('Error logging in:', error);
+    }
   }
 };
 
